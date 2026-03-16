@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OPhoneNumber {
 
-    String message() default "Phone number must be in format +996700000000";
+    String message() default "Номер телефона должен принадлежать оператору O! и быть действительным номером КР.";
 
     Class<?>[] groups() default {};
 

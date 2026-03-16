@@ -1,9 +1,11 @@
 package kg.nurtelecom.o_subscriber_service.service;
 
+import kg.nurtelecom.o_subscriber_service.component.PhoneNormalizationComponent;
 import kg.nurtelecom.o_subscriber_service.component.SubscriberMapper;
 import kg.nurtelecom.o_subscriber_service.dto.*;
 import kg.nurtelecom.o_subscriber_service.entity.Subscriber;
 import kg.nurtelecom.o_subscriber_service.exception.DuplicateResourceException;
+import kg.nurtelecom.o_subscriber_service.exception.ResourceNotFoundException;
 import kg.nurtelecom.o_subscriber_service.filesystem.FileStorageService;
 import kg.nurtelecom.o_subscriber_service.repository.SubscriberJdbcDao;
 import kg.nurtelecom.o_subscriber_service.repository.SubscriberRepository;
@@ -21,24 +23,28 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
     private final SubscriberMapper subscriberMapper;
     private final FileStorageService fileStorageService;
     private final SubscriberJdbcDao subscriberJdbcDao;
+    private final PhoneNormalizationComponent phoneNormalizationComponent;
 
     public DefaultSubscriberService(SubscriberRepository subscriberRepository,
                                     SubscriberMapper subscriberMapper,
                                     FileStorageService fileStorageService,
-                                    SubscriberJdbcDao subscriberJdbcDao) {
+                                    SubscriberJdbcDao subscriberJdbcDao,
+                                    PhoneNormalizationComponent phoneNormalizationComponent) {
         super(subscriberRepository);
         this.subscriberMapper = subscriberMapper;
         this.fileStorageService = fileStorageService;
         this.subscriberJdbcDao = subscriberJdbcDao;
+        this.phoneNormalizationComponent = phoneNormalizationComponent;
     }
 
     @Override
     public SubscriberResponse createSubscriber(CreateSubscriberRequest request) {
-        validateUniqueFields(request.getPhoneNumber(), request.getEmail());
+        String normalizedPhone = phoneNormalizationComponent.normalize(request.getPhoneNumber());
+        validateUniqueFields(normalizedPhone, request.getEmail());
 
         Subscriber subscriber = new Subscriber();
         subscriber.setFullName(request.getFullName());
-        subscriber.setPhoneNumber(request.getPhoneNumber());
+        subscriber.setPhoneNumber(normalizedPhone);
         subscriber.setEmail(request.getEmail());
         subscriber.setTariffPlan(request.getTariffPlan());
         subscriber.setBalance(request.getBalance());
@@ -68,9 +74,10 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
     @Override
     public SubscriberResponse updateSubscriber(Long id, UpdateSubscriberRequest request) {
         Subscriber subscriber = findSubscriberOrThrow(id);
+        String normalizedPhone = phoneNormalizationComponent.normalize(request.getPhoneNumber());
 
-        if (!subscriber.getPhoneNumber().equals(request.getPhoneNumber())
-                && subscriberRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+        if (!subscriber.getPhoneNumber().equals(normalizedPhone)
+                && subscriberRepository.existsByPhoneNumber(normalizedPhone)) {
             throw new DuplicateResourceException("Subscriber with this phone number already exists");
         }
 
@@ -80,7 +87,7 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
         }
 
         subscriber.setFullName(request.getFullName());
-        subscriber.setPhoneNumber(request.getPhoneNumber());
+        subscriber.setPhoneNumber(normalizedPhone);
         subscriber.setEmail(request.getEmail());
         subscriber.setTariffPlan(request.getTariffPlan());
         subscriber.setBalance(request.getBalance());
@@ -158,9 +165,7 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
     public void deactivateSubscriberJdbcTemplate(Long id) {
         int updatedRows = subscriberJdbcDao.deactivateSubscriberJdbcTemplate(id);
         if (updatedRows == 0) {
-            throw new kg.nurtelecom.o_subscriber_service.exception.ResourceNotFoundException(
-                    "Subscriber not found with id: " + id
-            );
+            throw new ResourceNotFoundException("Subscriber not found with id: " + id);
         }
     }
 }
