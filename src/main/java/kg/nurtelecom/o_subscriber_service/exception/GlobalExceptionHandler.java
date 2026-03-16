@@ -90,4 +90,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<ApiErrorResponse> handleBadCredentialsException(
+            org.springframework.security.authentication.BadCredentialsException ex) {
+
+        ApiErrorResponse response = new ApiErrorResponse(
+                java.time.LocalDateTime.now(),
+                org.springframework.http.HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                "Invalid username or password",
+                java.util.List.of()
+        );
+
+        return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).body(response);
+    }
+
 }
