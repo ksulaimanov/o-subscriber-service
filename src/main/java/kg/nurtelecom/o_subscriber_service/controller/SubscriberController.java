@@ -1,13 +1,20 @@
 package kg.nurtelecom.o_subscriber_service.controller;
 
 import jakarta.validation.Valid;
-import kg.nurtelecom.o_subscriber_service.dto.*;
+import kg.nurtelecom.o_subscriber_service.dto.BalanceUpdateRequest;
+import kg.nurtelecom.o_subscriber_service.dto.CreateSubscriberRequest;
+import kg.nurtelecom.o_subscriber_service.dto.PhotoUploadResponse;
+import kg.nurtelecom.o_subscriber_service.dto.SubscriberResponse;
+import kg.nurtelecom.o_subscriber_service.dto.SubscriberSummaryResponse;
+import kg.nurtelecom.o_subscriber_service.dto.TariffUpdateRequest;
+import kg.nurtelecom.o_subscriber_service.dto.UpdateSubscriberRequest;
 import kg.nurtelecom.o_subscriber_service.service.SubscriberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -70,5 +77,32 @@ public class SubscriberController {
                                                            @RequestParam("file") MultipartFile file) {
         PhotoUploadResponse response = subscriberService.uploadPhoto(id, file);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/dao/count")
+    public ResponseEntity<Integer> countSubscribersNativeJdbc() {
+        return ResponseEntity.ok(subscriberService.countSubscribersNativeJdbc());
+    }
+
+    @GetMapping("/dao/summaries")
+    public ResponseEntity<List<SubscriberSummaryResponse>> getAllSummariesJdbcTemplate() {
+        return ResponseEntity.ok(subscriberService.getAllSummariesJdbcTemplate());
+    }
+
+    @GetMapping("/dao/summaries/{id}")
+    public ResponseEntity<SubscriberSummaryResponse> getSummaryByIdJdbcOperations(@PathVariable Long id) {
+        return ResponseEntity.ok(subscriberService.getSummaryByIdJdbcOperations(id));
+    }
+
+    @GetMapping("/dao/filter-by-balance")
+    public ResponseEntity<List<SubscriberSummaryResponse>> getSubscribersWithBalanceGreaterThanJdbcClient(
+            @RequestParam BigDecimal amount) {
+        return ResponseEntity.ok(subscriberService.getSubscribersWithBalanceGreaterThanJdbcClient(amount));
+    }
+
+    @PatchMapping("/dao/{id}/deactivate")
+    public ResponseEntity<String> deactivateSubscriberJdbcTemplate(@PathVariable Long id) {
+        subscriberService.deactivateSubscriberJdbcTemplate(id);
+        return ResponseEntity.ok("Subscriber deactivated successfully");
     }
 }

@@ -5,11 +5,13 @@ import kg.nurtelecom.o_subscriber_service.dto.*;
 import kg.nurtelecom.o_subscriber_service.entity.Subscriber;
 import kg.nurtelecom.o_subscriber_service.exception.DuplicateResourceException;
 import kg.nurtelecom.o_subscriber_service.filesystem.FileStorageService;
+import kg.nurtelecom.o_subscriber_service.repository.SubscriberJdbcDao;
 import kg.nurtelecom.o_subscriber_service.repository.SubscriberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -18,13 +20,16 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
 
     private final SubscriberMapper subscriberMapper;
     private final FileStorageService fileStorageService;
+    private final SubscriberJdbcDao subscriberJdbcDao;
 
     public DefaultSubscriberService(SubscriberRepository subscriberRepository,
                                     SubscriberMapper subscriberMapper,
-                                    FileStorageService fileStorageService) {
+                                    FileStorageService fileStorageService,
+                                    SubscriberJdbcDao subscriberJdbcDao) {
         super(subscriberRepository);
         this.subscriberMapper = subscriberMapper;
         this.fileStorageService = fileStorageService;
+        this.subscriberJdbcDao = subscriberJdbcDao;
     }
 
     @Override
@@ -123,5 +128,39 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
                 subscriber.getPhotoPath(),
                 "Photo uploaded successfully"
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int countSubscribersNativeJdbc() {
+        return subscriberJdbcDao.countSubscribersNativeJdbc();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubscriberSummaryResponse> getAllSummariesJdbcTemplate() {
+        return subscriberJdbcDao.findAllSummariesJdbcTemplate();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SubscriberSummaryResponse getSummaryByIdJdbcOperations(Long id) {
+        return subscriberJdbcDao.findSummaryByIdJdbcOperations(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubscriberSummaryResponse> getSubscribersWithBalanceGreaterThanJdbcClient(BigDecimal amount) {
+        return subscriberJdbcDao.findSubscribersWithBalanceGreaterThanJdbcClient(amount);
+    }
+
+    @Override
+    public void deactivateSubscriberJdbcTemplate(Long id) {
+        int updatedRows = subscriberJdbcDao.deactivateSubscriberJdbcTemplate(id);
+        if (updatedRows == 0) {
+            throw new kg.nurtelecom.o_subscriber_service.exception.ResourceNotFoundException(
+                    "Subscriber not found with id: " + id
+            );
+        }
     }
 }
