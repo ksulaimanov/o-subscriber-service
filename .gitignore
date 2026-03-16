@@ -1,0 +1,33 @@
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+### Maven ###
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Logs ###
+*.log
+logs/
+
+### OS files ###
+.DS_Store
+Thumbs.db
+
+### Env / local config ###
+.env
+.env.*
+*.local
+
+### Spring Boot ###
+spring.log
+
+### Uploaded files ###
+uploads/
+
+### Generated files ###
+dependency-reduced-pom.xml
