@@ -1,15 +1,12 @@
 package kg.nurtelecom.o_subscriber_service.controller;
 
 import jakarta.validation.Valid;
-import kg.nurtelecom.o_subscriber_service.dto.BalanceUpdateRequest;
-import kg.nurtelecom.o_subscriber_service.dto.CreateSubscriberRequest;
-import kg.nurtelecom.o_subscriber_service.dto.SubscriberResponse;
-import kg.nurtelecom.o_subscriber_service.dto.TariffUpdateRequest;
-import kg.nurtelecom.o_subscriber_service.dto.UpdateSubscriberRequest;
+import kg.nurtelecom.o_subscriber_service.dto.*;
 import kg.nurtelecom.o_subscriber_service.service.SubscriberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -65,6 +62,13 @@ public class SubscriberController {
     public ResponseEntity<SubscriberResponse> updateTariff(@PathVariable Long id,
                                                            @Valid @RequestBody TariffUpdateRequest request) {
         SubscriberResponse response = subscriberService.updateTariff(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/photo")
+    public ResponseEntity<PhotoUploadResponse> uploadPhoto(@PathVariable Long id,
+                                                           @RequestParam("file") MultipartFile file) {
+        PhotoUploadResponse response = subscriberService.uploadPhoto(id, file);
         return ResponseEntity.ok(response);
     }
 }

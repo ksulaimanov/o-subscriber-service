@@ -19,4 +19,6 @@ public interface SubscriberService {
     SubscriberResponse updateBalance(Long id, BalanceUpdateRequest request);
 
     SubscriberResponse updateTariff(Long id, TariffUpdateRequest request);
+
+    PhotoUploadResponse uploadPhoto(Long id, org.springframework.web.multipart.MultipartFile file);
 }

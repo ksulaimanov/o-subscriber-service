@@ -76,4 +76,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ApiErrorResponse> handleFileStorageException(FileStorageException ex) {
+        ApiErrorResponse response = new ApiErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                List.of()
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
 }

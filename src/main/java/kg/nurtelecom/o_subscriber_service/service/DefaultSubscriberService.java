@@ -4,9 +4,11 @@ import kg.nurtelecom.o_subscriber_service.component.SubscriberMapper;
 import kg.nurtelecom.o_subscriber_service.dto.*;
 import kg.nurtelecom.o_subscriber_service.entity.Subscriber;
 import kg.nurtelecom.o_subscriber_service.exception.DuplicateResourceException;
+import kg.nurtelecom.o_subscriber_service.filesystem.FileStorageService;
 import kg.nurtelecom.o_subscriber_service.repository.SubscriberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,10 +17,14 @@ import java.util.List;
 public class DefaultSubscriberService extends AbstractSubscriberService implements SubscriberService {
 
     private final SubscriberMapper subscriberMapper;
+    private final FileStorageService fileStorageService;
 
-    public DefaultSubscriberService(SubscriberRepository subscriberRepository, SubscriberMapper subscriberMapper) {
+    public DefaultSubscriberService(SubscriberRepository subscriberRepository,
+                                    SubscriberMapper subscriberMapper,
+                                    FileStorageService fileStorageService) {
         super(subscriberRepository);
         this.subscriberMapper = subscriberMapper;
+        this.fileStorageService = fileStorageService;
     }
 
     @Override
@@ -101,5 +107,21 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
 
         Subscriber updatedSubscriber = subscriberRepository.save(subscriber);
         return subscriberMapper.toResponse(updatedSubscriber);
+    }
+
+    @Override
+    public PhotoUploadResponse uploadPhoto(Long id, MultipartFile file) {
+        Subscriber subscriber = findSubscriberOrThrow(id);
+
+        String savedPath = fileStorageService.saveFile(file);
+        subscriber.setPhotoPath(savedPath);
+
+        subscriberRepository.save(subscriber);
+
+        return new PhotoUploadResponse(
+                subscriber.getId(),
+                subscriber.getPhotoPath(),
+                "Photo uploaded successfully"
+        );
     }
 }
