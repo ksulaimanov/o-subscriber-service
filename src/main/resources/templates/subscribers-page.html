@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>O! Subscriber Service — Абоненты</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 18px;
+            box-shadow: var(--o-shadow);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #fff1f2;
+        }
+
+        th, td {
+            padding: 16px 18px;
+            text-align: left;
+            border-bottom: 1px solid #f3e3e5;
+            vertical-align: middle;
+        }
+
+        th {
+            color: var(--o-red);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tbody tr:hover {
+            background: #fff9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: #ecfdf3;
+            color: #027a48;
+        }
+
+        .status-inactive {
+            background: #fef3f2;
+            color: #b42318;
+        }
+
+        .tariff-badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: #fff0f1;
+            color: var(--o-red);
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .balance {
+            font-weight: 700;
+        }
+
+        .empty-state {
+            padding: 36px;
+            text-align: center;
+            color: var(--o-muted);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            <div class="brand-badge">O!</div>
+            <div>O! Subscriber Service</div>
+        </div>
+
+        <nav style="display:flex; gap:12px; align-items:center;">
+            <a class="btn btn-secondary" href="/home">Главная</a>
+            <a class="btn btn-secondary" href="/subscribers-page">Абоненты</a>
+
+            <form class="logout-form" th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="btn btn-primary" type="submit">Выйти</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Абоненты</h1>
+            <p style="color: var(--o-muted); margin: 8px 0 0;">
+                Управление действующими клиентами и их тарифными параметрами
+            </p>
+        </div>
+
+        <div class="toolbar">
+            <a class="btn btn-primary" href="/api/subscribers">Открыть API</a>
+            <a class="btn btn-secondary" href="/csrf">CSRF Token</a>
+        </div>
+    </div>
+
+    <div class="table-card" th:if="${subscribers != null and !subscribers.isEmpty()}">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>ФИО</th>
+                <th>Телефон</th>
+                <th>Email</th>
+                <th>Тариф</th>
+                <th>Баланс</th>
+                <th>Статус</th>
+                <th>Фото</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="subscriber : ${subscribers}">
+                <td th:text="${subscriber.id}"></td>
+                <td th:text="${subscriber.fullName}"></td>
+                <td th:text="${subscriber.phoneNumber}"></td>
+                <td th:text="${subscriber.email}"></td>
+                <td>
+                    <span class="tariff-badge" th:text="${subscriber.tariffPlan}"></span>
+                </td>
+                <td class="balance" th:text="${subscriber.balance + ' сом'}"></td>
+                <td>
+                    <span th:if="${subscriber.active}" class="status-badge status-active">Активен</span>
+                    <span th:unless="${subscriber.active}" class="status-badge status-inactive">Неактивен</span>
+                </td>
+                <td>
+                    <span th:if="${subscriber.photoPath != null and !#strings.isEmpty(subscriber.photoPath)}">Загружено</span>
+                    <span th:unless="${subscriber.photoPath != null and !#strings.isEmpty(subscriber.photoPath)}"
+                          style="color: var(--o-muted);">Нет фото</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-card empty-state" th:if="${subscribers == null or subscribers.isEmpty()}">
+        В системе пока нет абонентов
+    </div>
+</main>
+</body>
+</html>

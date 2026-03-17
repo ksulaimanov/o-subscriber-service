@@ -11,25 +11,25 @@ import java.math.BigDecimal;
 
 public class CreateSubscriberRequest {
 
-    @NotBlank(message = "Full name is required")
+    @NotBlank(message = "ФИО обязательно")
     private String fullName;
 
-    @NotBlank(message = "Phone number is required")
+    @NotBlank(message = "Номер телефона обязателен")
     @OPhoneNumber
     private String phoneNumber;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email format is invalid")
+    @NotBlank(message = "Email обязателен")
+    @Email(message = "Неверный формат email")
     private String email;
 
-    @NotNull(message = "Tariff plan is required")
+    @NotNull(message = "Тарифный план обязателен")
     private TariffPlan tariffPlan;
 
-    @NotNull(message = "Balance is required")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Balance must be greater than or equal to 0")
+    @NotNull(message = "Баланс обязателен")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Баланс должен быть больше или равен 0")
     private BigDecimal balance;
 
-    @NotNull(message = "Active flag is required")
+    @NotNull(message = "Статус активности обязателен")
     private Boolean active;
 
     public CreateSubscriberRequest() {

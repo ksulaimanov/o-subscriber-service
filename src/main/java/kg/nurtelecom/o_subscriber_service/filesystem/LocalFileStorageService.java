@@ -23,21 +23,21 @@ public class LocalFileStorageService implements FileStorageService {
         try {
             Files.createDirectories(this.uploadPath);
         } catch (IOException e) {
-            throw new FileStorageException("Could not create upload directory", e);
+            throw new FileStorageException("Не удалось создать директорию для загрузки файлов", e);
         }
     }
 
     @Override
     public String saveFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new FileStorageException("File is empty");
+            throw new FileStorageException("Файл пустой");
         }
 
         String originalFilename = file.getOriginalFilename();
         String extension = getFileExtension(originalFilename);
 
         if (!isImageExtensionAllowed(extension)) {
-            throw new FileStorageException("Only image files are allowed: jpg, jpeg, png");
+            throw new FileStorageException("Разрешены только изображения: jpg, jpeg, png");
         }
 
         String generatedFileName = UUID.randomUUID() + extension;
@@ -47,13 +47,13 @@ public class LocalFileStorageService implements FileStorageService {
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             return "uploads/" + generatedFileName;
         } catch (IOException e) {
-            throw new FileStorageException("Could not save file", e);
+            throw new FileStorageException("Не удалось сохранить файл", e);
         }
     }
 
     private String getFileExtension(String fileName) {
         if (fileName == null || !fileName.contains(".")) {
-            throw new FileStorageException("File must have an extension");
+            throw new FileStorageException("Файл должен иметь расширение");
         }
 
         return fileName.substring(fileName.lastIndexOf(".")).toLowerCase();

@@ -35,7 +35,7 @@ public class DefaultAuthService implements AuthService {
         );
 
         AppUser appUser = appUserRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
         String token = jwtService.generateToken(appUser);
 

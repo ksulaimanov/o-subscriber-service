@@ -78,12 +78,12 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
 
         if (!subscriber.getPhoneNumber().equals(normalizedPhone)
                 && subscriberRepository.existsByPhoneNumber(normalizedPhone)) {
-            throw new DuplicateResourceException("Subscriber with this phone number already exists");
+            throw new DuplicateResourceException("Абонент с таким номером телефона уже существует");
         }
 
         if (!subscriber.getEmail().equals(request.getEmail())
                 && subscriberRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Subscriber with this email already exists");
+            throw new DuplicateResourceException("Абонент с таким email уже существует");
         }
 
         subscriber.setFullName(request.getFullName());
@@ -133,7 +133,7 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
         return new PhotoUploadResponse(
                 subscriber.getId(),
                 subscriber.getPhotoPath(),
-                "Photo uploaded successfully"
+                "Фотография успешно загружена"
         );
     }
 
@@ -165,7 +165,7 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
     public void deactivateSubscriberJdbcTemplate(Long id) {
         int updatedRows = subscriberJdbcDao.deactivateSubscriberJdbcTemplate(id);
         if (updatedRows == 0) {
-            throw new ResourceNotFoundException("Subscriber not found with id: " + id);
+            throw new ResourceNotFoundException("Абонент не найден с id: " + id);
         }
     }
 }

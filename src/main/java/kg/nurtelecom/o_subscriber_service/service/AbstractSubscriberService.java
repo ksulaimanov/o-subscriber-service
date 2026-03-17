@@ -15,15 +15,15 @@ public abstract class AbstractSubscriberService {
 
     protected Subscriber findSubscriberOrThrow(Long id) {
         return subscriberRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Subscriber not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Абонент не найден с id: " + id));
     }
 
     protected void validateUniqueFields(String phoneNumber, String email) {
         if (subscriberRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new DuplicateResourceException("Subscriber with this phone number already exists");
+            throw new DuplicateResourceException("Абонент с таким номером телефона уже существует");
         }
         if (subscriberRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException("Subscriber with this email already exists");
+            throw new DuplicateResourceException("Абонент с таким email уже существует");
         }
     }
 }

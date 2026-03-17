@@ -5,7 +5,7 @@ import kg.nurtelecom.o_subscriber_service.entity.TariffPlan;
 
 public class TariffUpdateRequest {
 
-    @NotNull(message = "Tariff plan is required")
+    @NotNull(message = "Тарифный план обязателен")
     private TariffPlan tariffPlan;
 
     public TariffUpdateRequest() {

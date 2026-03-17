@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OPhoneNumber {
 
-    String message() default "Номер телефона должен принадлежать оператору O! и быть действительным номером КР.";
+    String message() default "Номер должен принадлежать оператору O! и быть корректным номером КР";
 
     Class<?>[] groups() default {};
 

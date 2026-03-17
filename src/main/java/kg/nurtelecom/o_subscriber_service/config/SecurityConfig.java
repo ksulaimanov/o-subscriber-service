@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -31,12 +32,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        CookieCsrfTokenRepository cookieCsrfTokenRepository =
+                CookieCsrfTokenRepository.withHttpOnlyFalse();
+
         http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .userDetailsService(customUserDetailsService)
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(cookieCsrfTokenRepository)
+                        .csrfTokenRequestHandler(new XorCsrfTokenRequestAttributeHandler())
+                        .ignoringRequestMatchers("/api/auth/login")
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/login",
+                                "/csrf",
+                                "/css/**",
+                                "/images/**"
+                        ).permitAll()
+
+                        .requestMatchers("/home", "/profile", "/subscribers-page").authenticated()
+
                         .requestMatchers(HttpMethod.GET, "/api/subscribers", "/api/subscribers/*").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/subscribers/dao/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/subscribers").hasRole("ADMIN")
@@ -44,9 +61,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/subscribers/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/subscribers/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/subscribers/**").hasRole("ADMIN")
+
+                        .requestMatchers("/api/auth/login").permitAll()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                )
+                .httpBasic(httpBasic -> {})
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 
 public class BalanceUpdateRequest {
 
-    @NotNull(message = "Amount is required")
-    @DecimalMin(value = "0.01", inclusive = true, message = "Amount must be greater than 0")
+    @NotNull(message = "Сумма обязательна")
+    @DecimalMin(value = "0.01", inclusive = true, message = "Сумма должна быть больше 0")
     private BigDecimal amount;
 
     public BalanceUpdateRequest() {

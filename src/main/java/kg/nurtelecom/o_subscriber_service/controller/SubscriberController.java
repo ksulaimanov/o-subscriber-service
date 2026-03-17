@@ -103,6 +103,6 @@ public class SubscriberController {
     @PatchMapping("/dao/{id}/deactivate")
     public ResponseEntity<String> deactivateSubscriberJdbcTemplate(@PathVariable Long id) {
         subscriberService.deactivateSubscriberJdbcTemplate(id);
-        return ResponseEntity.ok("Subscriber deactivated successfully");
+        return ResponseEntity.ok("Абонент успешно деактивирован");
     }
 }
