@@ -168,4 +168,11 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
             throw new ResourceNotFoundException("Абонент не найден с id: " + id);
         }
     }
+
+    @Override
+    public void toggleActive(Long id) {
+        Subscriber subscriber = findSubscriberOrThrow(id);
+        subscriber.setActive(!subscriber.isActive());
+        subscriberRepository.save(subscriber);
+    }
 }

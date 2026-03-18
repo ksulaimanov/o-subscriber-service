@@ -2,10 +2,13 @@ package kg.nurtelecom.o_subscriber_service.filesystem;
 
 import kg.nurtelecom.o_subscriber_service.exception.FileStorageException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,9 +48,25 @@ public class LocalFileStorageService implements FileStorageService {
         try {
             Path targetLocation = this.uploadPath.resolve(generatedFileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            return "uploads/" + generatedFileName;
+            return generatedFileName;
         } catch (IOException e) {
             throw new FileStorageException("Не удалось сохранить файл", e);
+        }
+    }
+
+    @Override
+    public Resource loadAsResource(String fileName) {
+        try {
+            Path filePath = this.uploadPath.resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            }
+
+            throw new FileStorageException("Файл не найден: " + fileName);
+        } catch (MalformedURLException e) {
+            throw new FileStorageException("Не удалось загрузить файл: " + fileName, e);
         }
     }
 

@@ -1,6 +1,7 @@
 package kg.nurtelecom.o_subscriber_service.service;
 
 import kg.nurtelecom.o_subscriber_service.dto.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface SubscriberService {
 
     SubscriberResponse updateTariff(Long id, TariffUpdateRequest request);
 
-    PhotoUploadResponse uploadPhoto(Long id, org.springframework.web.multipart.MultipartFile file);
+    PhotoUploadResponse uploadPhoto(Long id, MultipartFile file);
 
     int countSubscribersNativeJdbc();
 
@@ -31,4 +32,6 @@ public interface SubscriberService {
     java.util.List<kg.nurtelecom.o_subscriber_service.dto.SubscriberSummaryResponse> getSubscribersWithBalanceGreaterThanJdbcClient(java.math.BigDecimal amount);
 
     void deactivateSubscriberJdbcTemplate(Long id);
+
+    void toggleActive(Long id);
 }

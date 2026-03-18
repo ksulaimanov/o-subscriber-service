@@ -47,12 +47,16 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/login",
-                                "/csrf",
+                                "/register",
                                 "/css/**",
-                                "/images/**"
+                                "/images/**",
+                                "/photos/**"
                         ).permitAll()
 
-                        .requestMatchers("/home", "/profile", "/subscribers-page").authenticated()
+                        .requestMatchers("/home", "/subscribers-page").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/profile/*").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/subscribers/*/photo").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/register").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/subscribers", "/api/subscribers/*").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/subscribers/dao/**").hasRole("ADMIN")

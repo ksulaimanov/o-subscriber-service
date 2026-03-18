@@ -105,4 +105,10 @@ public class SubscriberController {
         subscriberService.deactivateSubscriberJdbcTemplate(id);
         return ResponseEntity.ok("Абонент успешно деактивирован");
     }
+
+    @PostMapping("/{id}/toggle")
+    public ResponseEntity<String> toggleSubscriberStatus(@PathVariable Long id) {
+        subscriberService.toggleActive(id);
+        return ResponseEntity.ok("Статус абонента успешно изменён");
+    }
 }

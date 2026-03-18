@@ -5,6 +5,11 @@ import kg.nurtelecom.o_subscriber_service.service.SubscriberService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -25,13 +30,28 @@ public class SubscriberViewController {
     }
 
     @GetMapping("/profile")
-    public String profilePage(Model model) {
-        List<SubscriberResponse> subscribers = subscriberService.getAllSubscribers();
+    public String profileRedirect() {
+        return "redirect:/subscribers-page";
+    }
 
-        if (!subscribers.isEmpty()) {
-            model.addAttribute("subscriber", subscribers.get(0));
+    @GetMapping("/profile/{id}")
+    public String profilePage(@PathVariable Long id, Model model) {
+        SubscriberResponse subscriber = subscriberService.getSubscriberById(id);
+        model.addAttribute("subscriber", subscriber);
+        return "profile";
+    }
+
+    @PostMapping("/subscribers/{id}/photo")
+    public String uploadSubscriberPhoto(@PathVariable Long id,
+                                        @RequestParam("photo") MultipartFile photo,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            subscriberService.uploadPhoto(id, photo);
+            redirectAttributes.addFlashAttribute("successMessage", "Фотография успешно загружена");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
 
-        return "profile";
+        return "redirect:/profile/" + id;
     }
 }
