@@ -53,10 +53,13 @@ public class SecurityConfig {
                                 "/photos/**"
                         ).permitAll()
 
-                        .requestMatchers("/home", "/subscribers-page").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/register").permitAll()
+
+                        .requestMatchers("/home", "/profile").authenticated()
                         .requestMatchers(HttpMethod.GET, "/profile/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/subscribers/*/photo").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/register").permitAll()
+
+                        .requestMatchers("/subscribers-page").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/subscribers", "/api/subscribers/*").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/subscribers/dao/**").hasRole("ADMIN")

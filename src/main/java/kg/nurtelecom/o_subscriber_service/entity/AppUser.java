@@ -20,14 +20,19 @@ public class AppUser {
     @Column(nullable = false)
     private Role role;
 
+    @OneToOne
+    @JoinColumn(name = "subscriber_id", unique = true)
+    private Subscriber subscriber;
+
     public AppUser() {
     }
 
-    public AppUser(Long id, String username, String password, Role role) {
+    public AppUser(Long id, String username, String password, Role role, Subscriber subscriber) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
+        this.subscriber = subscriber;
     }
 
     public Long getId() {
@@ -60,5 +65,13 @@ public class AppUser {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Subscriber getSubscriber() {
+        return subscriber;
+    }
+
+    public void setSubscriber(Subscriber subscriber) {
+        this.subscriber = subscriber;
     }
 }

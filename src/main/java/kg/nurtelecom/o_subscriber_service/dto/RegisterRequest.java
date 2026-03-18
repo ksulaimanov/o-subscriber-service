@@ -2,8 +2,17 @@ package kg.nurtelecom.o_subscriber_service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import kg.nurtelecom.o_subscriber_service.validation.OPhoneNumber;
 
 public class RegisterRequest {
+
+    @NotBlank(message = "Введите ФИО")
+    @Size(min = 2, max = 100, message = "ФИО должно содержать от 2 до 100 символов")
+    private String fullName;
+
+    @NotBlank(message = "Введите номер телефона")
+    @OPhoneNumber
+    private String phoneNumber;
 
     @NotBlank(message = "Введите логин")
     @Size(min = 3, max = 50, message = "Логин должен содержать от 3 до 50 символов")
@@ -16,36 +25,20 @@ public class RegisterRequest {
     @NotBlank(message = "Подтвердите пароль")
     private String confirmPassword;
 
-    public RegisterRequest() {
-    }
+    public RegisterRequest() {}
 
-    public RegisterRequest(String username, String password, String confirmPassword) {
-        this.username = username;
-        this.password = password;
-        this.confirmPassword = confirmPassword;
-    }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public String getPassword() {
-        return password;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
+    public String getConfirmPassword() { return confirmPassword; }
+    public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>O! — Профиль абонента</title>
@@ -170,7 +171,8 @@
 
         <nav style="display:flex; gap:12px; align-items:center; flex-wrap: wrap;">
             <a class="btn btn-secondary" href="/home">Главная</a>
-            <a class="btn btn-secondary" href="/subscribers-page">Абоненты</a>
+            <a class="btn btn-secondary" href="/profile">Мой профиль</a>
+            <a class="btn btn-secondary" sec:authorize="hasRole('ADMIN')" href="/subscribers-page">Абоненты</a>
 
             <form class="logout-form" th:action="@{/logout}" method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -218,7 +220,7 @@
             </div>
 
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <span class="tariff-badge" th:text="${subscriber.tariffPlan}">DIRECTOR</span>
+                <span class="tariff-badge" th:text="${subscriber.tariffPlan}">SPECIALIST</span>
                 <span th:if="${subscriber.active}" class="status-badge status-active">Активен</span>
                 <span th:unless="${subscriber.active}" class="status-badge status-inactive">Неактивен</span>
             </div>
@@ -228,11 +230,6 @@
             <div class="profile-item">
                 <div class="profile-item-label">Номер телефона</div>
                 <div class="profile-item-value" th:text="${subscriber.phoneNumber}"></div>
-            </div>
-
-            <div class="profile-item">
-                <div class="profile-item-label">Email</div>
-                <div class="profile-item-value" th:text="${subscriber.email}"></div>
             </div>
 
             <div class="profile-item">
@@ -255,6 +252,11 @@
                 <div class="profile-item-label">Фотография</div>
                 <div class="profile-item-value"
                      th:text="${subscriber.photoPath != null and !#strings.isEmpty(subscriber.photoPath) ? 'Загружена' : 'Не загружена'}"></div>
+            </div>
+
+            <div class="profile-item">
+                <div class="profile-item-label">Тип обслуживания</div>
+                <div class="profile-item-value">Сервис абонента O!</div>
             </div>
         </div>
     </div>

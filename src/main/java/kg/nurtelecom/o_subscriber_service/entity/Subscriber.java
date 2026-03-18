@@ -34,6 +34,9 @@ public class Subscriber {
     @Column(name = "photo_path")
     private String photoPath;
 
+    @OneToOne(mappedBy = "subscriber")
+    private AppUser appUser;
+
     public Subscriber() {
     }
 
@@ -111,5 +114,13 @@ public class Subscriber {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public AppUser getAppUser() {
+        return appUser;
+    }
+
+    public void setAppUser(AppUser appUser) {
+        this.appUser = appUser;
     }
 }

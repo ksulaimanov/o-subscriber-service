@@ -1,7 +1,10 @@
 package kg.nurtelecom.o_subscriber_service.controller;
 
 import kg.nurtelecom.o_subscriber_service.dto.SubscriberResponse;
+import kg.nurtelecom.o_subscriber_service.entity.AppUser;
+import kg.nurtelecom.o_subscriber_service.repository.AppUserRepository;
 import kg.nurtelecom.o_subscriber_service.service.SubscriberService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +20,12 @@ import java.util.List;
 public class SubscriberViewController {
 
     private final SubscriberService subscriberService;
+    private final AppUserRepository appUserRepository;
 
-    public SubscriberViewController(SubscriberService subscriberService) {
+    public SubscriberViewController(SubscriberService subscriberService,
+                                    AppUserRepository appUserRepository) {
         this.subscriberService = subscriberService;
+        this.appUserRepository = appUserRepository;
     }
 
     @GetMapping("/subscribers-page")
@@ -30,12 +36,25 @@ public class SubscriberViewController {
     }
 
     @GetMapping("/profile")
-    public String profileRedirect() {
-        return "redirect:/subscribers-page";
+    public String profilePage(Authentication authentication, Model model) {
+        String username = authentication.getName();
+
+        AppUser appUser = appUserRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+
+        if (appUser.getSubscriber() == null) {
+            return "redirect:/home";
+        }
+
+        Long subscriberId = appUser.getSubscriber().getId();
+        SubscriberResponse subscriber = subscriberService.getSubscriberById(subscriberId);
+        model.addAttribute("subscriber", subscriber);
+
+        return "profile";
     }
 
     @GetMapping("/profile/{id}")
-    public String profilePage(@PathVariable Long id, Model model) {
+    public String profilePageById(@PathVariable Long id, Model model) {
         SubscriberResponse subscriber = subscriberService.getSubscriberById(id);
         model.addAttribute("subscriber", subscriber);
         return "profile";
