@@ -70,6 +70,20 @@ public class LocalFileStorageService implements FileStorageService {
         }
     }
 
+    @Override
+    public void deleteFile(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return;
+        }
+
+        try {
+            Path filePath = this.uploadPath.resolve(fileName).normalize();
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new FileStorageException("Не удалось удалить файл: " + fileName, e);
+        }
+    }
+
     private String getFileExtension(String fileName) {
         if (fileName == null || !fileName.contains(".")) {
             throw new FileStorageException("Файл должен иметь расширение");

@@ -8,15 +8,17 @@ import org.springframework.stereotype.Component;
 public class SubscriberMapper {
 
     public SubscriberResponse toResponse(Subscriber subscriber) {
-        return new SubscriberResponse(
-                subscriber.getId(),
-                subscriber.getFullName(),
-                subscriber.getPhoneNumber(),
-                subscriber.getEmail(),
-                subscriber.getTariffPlan(),
-                subscriber.getBalance(),
-                subscriber.isActive(),
-                subscriber.getPhotoPath()
-        );
+        SubscriberResponse response = new SubscriberResponse();
+        response.setId(subscriber.getId());
+        response.setFullName(subscriber.getFullName());
+        response.setPhoneNumber(subscriber.getPhoneNumber());
+        response.setEmail(subscriber.getEmail());
+        response.setTariffPlan(subscriber.getTariffPlan() != null ? subscriber.getTariffPlan().name() : null);
+        response.setBalance(subscriber.getBalance());
+        response.setActive(subscriber.isActive());
+        response.setPhotoPath(subscriber.getPhotoPath());
+        response.setRemainingTrafficGb(subscriber.getRemainingTrafficGb());
+        response.setTariffExpirationDate(subscriber.getTariffExpirationDate());
+        return response;
     }
 }

@@ -67,7 +67,8 @@ public class SubscriberJdbcDao {
                 where id = ?
                 """;
 
-        List<SubscriberSummaryResponse> results = jdbcOperations.query(sql, (rs, rowNum) -> mapSummary(rs), id);
+        List<SubscriberSummaryResponse> results =
+                jdbcOperations.query(sql, (rs, rowNum) -> mapSummary(rs), id);
 
         if (results.isEmpty()) {
             throw new ResourceNotFoundException("Subscriber not found with id: " + id);
@@ -95,6 +96,43 @@ public class SubscriberJdbcDao {
     public int deactivateSubscriberJdbcTemplate(Long id) {
         String sql = "update subscribers set active = false where id = ?";
         return jdbcTemplate.update(sql, id);
+    }
+
+    // JdbcTemplate update email
+    public int updateEmailJdbcTemplate(Long id, String email) {
+        String sql = "update subscribers set email = ? where id = ?";
+        return jdbcTemplate.update(sql, email, id);
+    }
+
+    // JdbcOperations read email
+    public String findEmailByIdJdbcOperations(Long id) {
+        String sql = "select email from subscribers where id = ?";
+
+        List<String> results = jdbcOperations.query(
+                sql,
+                (rs, rowNum) -> rs.getString("email"),
+                id
+        );
+
+        if (results.isEmpty()) {
+            throw new ResourceNotFoundException("Subscriber not found with id: " + id);
+        }
+
+        return results.get(0);
+    }
+
+    // JdbcClient list without email
+    public List<SubscriberSummaryResponse> findSubscribersWithoutEmailJdbcClient() {
+        String sql = """
+                select id, full_name, phone_number, balance, tariff_plan
+                from subscribers
+                where email is null or trim(email) = ''
+                order by id
+                """;
+
+        return jdbcClient.sql(sql)
+                .query((rs, rowNum) -> mapSummary(rs))
+                .list();
     }
 
     private SubscriberSummaryResponse mapSummary(ResultSet rs) throws SQLException {

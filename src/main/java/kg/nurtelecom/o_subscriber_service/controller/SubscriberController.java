@@ -1,13 +1,7 @@
 package kg.nurtelecom.o_subscriber_service.controller;
 
 import jakarta.validation.Valid;
-import kg.nurtelecom.o_subscriber_service.dto.BalanceUpdateRequest;
-import kg.nurtelecom.o_subscriber_service.dto.CreateSubscriberRequest;
-import kg.nurtelecom.o_subscriber_service.dto.PhotoUploadResponse;
-import kg.nurtelecom.o_subscriber_service.dto.SubscriberResponse;
-import kg.nurtelecom.o_subscriber_service.dto.SubscriberSummaryResponse;
-import kg.nurtelecom.o_subscriber_service.dto.TariffUpdateRequest;
-import kg.nurtelecom.o_subscriber_service.dto.UpdateSubscriberRequest;
+import kg.nurtelecom.o_subscriber_service.dto.*;
 import kg.nurtelecom.o_subscriber_service.service.SubscriberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -110,5 +104,22 @@ public class SubscriberController {
     public ResponseEntity<String> toggleSubscriberStatus(@PathVariable Long id) {
         subscriberService.toggleActive(id);
         return ResponseEntity.ok("Статус абонента успешно изменён");
+    }
+
+    @GetMapping("/{id}/email")
+    public ResponseEntity<String> getEmailByIdJdbcOperations(@PathVariable Long id) {
+        return ResponseEntity.ok(subscriberService.getEmailByIdJdbcOperations(id));
+    }
+
+    @PatchMapping("/{id}/email")
+    public ResponseEntity<Void> updateEmailJdbcTemplate(@PathVariable Long id,
+                                                        @Valid @RequestBody EmailUpdateRequest request) {
+        subscriberService.updateEmailJdbcTemplate(id, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/without-email")
+    public ResponseEntity<List<SubscriberSummaryResponse>> getSubscribersWithoutEmailJdbcClient() {
+        return ResponseEntity.ok(subscriberService.getSubscribersWithoutEmailJdbcClient());
     }
 }

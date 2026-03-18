@@ -34,4 +34,12 @@ public interface SubscriberService {
     void deactivateSubscriberJdbcTemplate(Long id);
 
     void toggleActive(Long id);
+
+    String getEmailByIdJdbcOperations(Long id);
+
+    void updateEmailJdbcTemplate(Long id, EmailUpdateRequest request);
+
+    java.util.List<kg.nurtelecom.o_subscriber_service.dto.SubscriberSummaryResponse> getSubscribersWithoutEmailJdbcClient();
+
+    void deletePhoto(Long id);
 }

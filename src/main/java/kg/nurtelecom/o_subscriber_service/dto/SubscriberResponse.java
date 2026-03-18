@@ -1,8 +1,7 @@
 package kg.nurtelecom.o_subscriber_service.dto;
 
-import kg.nurtelecom.o_subscriber_service.entity.TariffPlan;
-
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class SubscriberResponse {
 
@@ -10,24 +9,14 @@ public class SubscriberResponse {
     private String fullName;
     private String phoneNumber;
     private String email;
-    private TariffPlan tariffPlan;
+    private String tariffPlan;
     private BigDecimal balance;
     private boolean active;
     private String photoPath;
+    private Integer remainingTrafficGb;
+    private LocalDate tariffExpirationDate;
 
     public SubscriberResponse() {
-    }
-
-    public SubscriberResponse(Long id, String fullName, String phoneNumber, String email,
-                              TariffPlan tariffPlan, BigDecimal balance, boolean active, String photoPath) {
-        this.id = id;
-        this.fullName = fullName;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.tariffPlan = tariffPlan;
-        this.balance = balance;
-        this.active = active;
-        this.photoPath = photoPath;
     }
 
     public Long getId() {
@@ -62,11 +51,11 @@ public class SubscriberResponse {
         this.email = email;
     }
 
-    public TariffPlan getTariffPlan() {
+    public String getTariffPlan() {
         return tariffPlan;
     }
 
-    public void setTariffPlan(TariffPlan tariffPlan) {
+    public void setTariffPlan(String tariffPlan) {
         this.tariffPlan = tariffPlan;
     }
 
@@ -92,5 +81,21 @@ public class SubscriberResponse {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public Integer getRemainingTrafficGb() {
+        return remainingTrafficGb;
+    }
+
+    public void setRemainingTrafficGb(Integer remainingTrafficGb) {
+        this.remainingTrafficGb = remainingTrafficGb;
+    }
+
+    public LocalDate getTariffExpirationDate() {
+        return tariffExpirationDate;
+    }
+
+    public void setTariffExpirationDate(LocalDate tariffExpirationDate) {
+        this.tariffExpirationDate = tariffExpirationDate;
     }
 }

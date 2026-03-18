@@ -54,7 +54,10 @@
             background: rgba(255,255,255,0.03);
         }
 
-        .photo-upload-form {
+        .photo-upload-form,
+        .photo-delete-form,
+        .email-form,
+        .tariff-form {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
@@ -83,7 +86,8 @@
             background: rgba(255,255,255,0.1);
         }
 
-        .photo-hint {
+        .photo-hint,
+        .photo-file-name {
             color: var(--o-muted);
             font-size: 13px;
         }
@@ -153,6 +157,25 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
+        .email-input,
+        .tariff-select {
+            width: 100%;
+            max-width: 320px;
+            height: 46px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.04);
+            color: white;
+            padding: 0 14px;
+            outline: none;
+        }
+
+        .email-input:focus,
+        .tariff-select:focus {
+            border-color: rgba(230, 0, 126, 0.6);
+            box-shadow: 0 0 0 4px rgba(230, 0, 126, 0.12);
+        }
+
         @media (max-width: 960px) {
             .profile-layout,
             .profile-grid {
@@ -205,18 +228,32 @@
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                     <label class="upload-label" th:for="${'photoInput-' + subscriber.id}">Выбрать фото</label>
-                    <input th:id="${'photoInput-' + subscriber.id}" type="file" name="photo" accept=".jpg,.jpeg,.png" required>
+                    <input th:id="${'photoInput-' + subscriber.id}"
+                           type="file"
+                           name="photo"
+                           accept=".jpg,.jpeg,.png"
+                           required
+                           onchange="updateFileName(this, 'selected-file-name')">
 
                     <button class="btn btn-primary" type="submit">Загрузить фото</button>
                 </form>
 
+                <form class="photo-delete-form"
+                      th:if="${subscriber.photoPath != null and !#strings.isEmpty(subscriber.photoPath)}"
+                      th:action="@{/subscribers/{id}/photo/delete(id=${subscriber.id})}"
+                      method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button class="btn btn-secondary" type="submit">Удалить фото</button>
+                </form>
+
+                <div id="selected-file-name" class="photo-file-name">Файл не выбран</div>
                 <div class="photo-hint">Поддерживаются JPG, JPEG и PNG</div>
             </div>
 
             <h1 class="profile-name" th:text="${subscriber.fullName}">Имя Абонента</h1>
             <div class="profile-subtitle">
                 Персональный профиль абонента с основной информацией о подключении,
-                тарифном плане и текущем статусе обслуживания.
+                тарифе, балансе и пакете услуг.
             </div>
 
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -233,13 +270,40 @@
             </div>
 
             <div class="profile-item">
+                <div class="profile-item-label">Email</div>
+                <div class="profile-item-value"
+                     th:text="${subscriber.email != null and !#strings.isEmpty(subscriber.email) ? subscriber.email : 'Не добавлен'}"></div>
+
+                <form class="email-form"
+                      th:action="@{/subscribers/{id}/email(id=${subscriber.id})}"
+                      method="post"
+                      style="margin-top: 14px;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input class="email-input" type="email" name="email" placeholder="Введите email">
+                    <button class="btn btn-primary" type="submit">Сохранить</button>
+                </form>
+            </div>
+
+            <div class="profile-item">
                 <div class="profile-item-label">Баланс</div>
                 <div class="profile-item-value" th:text="${subscriber.balance + ' сом'}"></div>
             </div>
 
             <div class="profile-item">
+                <div class="profile-item-label">Остаток интернета</div>
+                <div class="profile-item-value"
+                     th:text="${subscriber.remainingTrafficGb != null ? subscriber.remainingTrafficGb + ' GB' : 'Безлимит'}"></div>
+            </div>
+
+            <div class="profile-item">
                 <div class="profile-item-label">Тарифный план</div>
                 <div class="profile-item-value" th:text="${subscriber.tariffPlan}"></div>
+            </div>
+
+            <div class="profile-item">
+                <div class="profile-item-label">Срок действия тарифа</div>
+                <div class="profile-item-value"
+                     th:text="${subscriber.tariffExpirationDate != null ? subscriber.tariffExpirationDate : 'Не указан'}"></div>
             </div>
 
             <div class="profile-item">
@@ -254,9 +318,27 @@
                      th:text="${subscriber.photoPath != null and !#strings.isEmpty(subscriber.photoPath) ? 'Загружена' : 'Не загружена'}"></div>
             </div>
 
-            <div class="profile-item">
-                <div class="profile-item-label">Тип обслуживания</div>
-                <div class="profile-item-value">Сервис абонента O!</div>
+            <div class="profile-item" style="grid-column: 1 / -1;">
+                <div class="profile-item-label">Смена тарифа</div>
+
+                <form class="tariff-form"
+                      th:action="@{/subscribers/{id}/tariff(id=${subscriber.id})}"
+                      method="post"
+                      style="margin-top: 10px;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <select name="tariffPlan" class="tariff-select">
+                        <option value="SPECIALIST">SPECIALIST — 350 сом / 50 GB</option>
+                        <option value="MANAGER">MANAGER — 500 сом / 50 GB</option>
+                        <option value="DIRECTOR">DIRECTOR — 1000 сом / Безлимит</option>
+                    </select>
+
+                    <button class="btn btn-primary" type="submit">Сменить тариф</button>
+                </form>
+
+                <div class="photo-hint" style="margin-top: 10px;">
+                    При смене тарифа стоимость будет списана с баланса, а пакет обновится на 30 дней.
+                </div>
             </div>
         </div>
     </div>
@@ -265,5 +347,18 @@
         Данные абонента пока недоступны
     </div>
 </main>
+
+<script>
+    function updateFileName(input, targetId) {
+        const target = document.getElementById(targetId);
+        if (!target) return;
+
+        if (input.files && input.files.length > 0) {
+            target.textContent = "Выбран файл: " + input.files[0].name;
+        } else {
+            target.textContent = "Файл не выбран";
+        }
+    }
+</script>
 </body>
 </html>

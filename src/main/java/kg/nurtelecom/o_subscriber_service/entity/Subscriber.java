@@ -3,6 +3,7 @@ package kg.nurtelecom.o_subscriber_service.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "subscribers")
@@ -18,7 +19,7 @@ public class Subscriber {
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -37,11 +38,20 @@ public class Subscriber {
     @OneToOne(mappedBy = "subscriber")
     private AppUser appUser;
 
+    @Column(name = "remaining_traffic_gb")
+    private Integer remainingTrafficGb;
+
+    @Column(name = "tariff_expiration_date")
+    private LocalDate tariffExpirationDate;
+    private LocalDate packageExpiresAt;
+
     public Subscriber() {
     }
 
-    public Subscriber(Long id, String fullName, String phoneNumber, String email,
-                      TariffPlan tariffPlan, BigDecimal balance, boolean active, String photoPath) {
+
+    public Subscriber(Long id, String fullName, String phoneNumber, String email, TariffPlan tariffPlan,
+                      BigDecimal balance, boolean active, String photoPath, AppUser appUser,
+                      Integer remainingTrafficGb, LocalDate tariffExpirationDate, LocalDate packageExpiresAt) {
         this.id = id;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
@@ -50,6 +60,10 @@ public class Subscriber {
         this.balance = balance;
         this.active = active;
         this.photoPath = photoPath;
+        this.appUser = appUser;
+        this.remainingTrafficGb = remainingTrafficGb;
+        this.tariffExpirationDate = tariffExpirationDate;
+        this.packageExpiresAt = packageExpiresAt;
     }
 
     public Long getId() {
@@ -122,5 +136,21 @@ public class Subscriber {
 
     public void setAppUser(AppUser appUser) {
         this.appUser = appUser;
+    }
+
+    public Integer getRemainingTrafficGb() {
+        return remainingTrafficGb;
+    }
+
+    public void setRemainingTrafficGb(Integer remainingTrafficGb) {
+        this.remainingTrafficGb = remainingTrafficGb;
+    }
+
+    public LocalDate getTariffExpirationDate() {
+        return tariffExpirationDate;
+    }
+
+    public void setTariffExpirationDate(LocalDate tariffExpirationDate) {
+        this.tariffExpirationDate = tariffExpirationDate;
     }
 }

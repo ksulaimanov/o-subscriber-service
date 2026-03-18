@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Service
 @Transactional
@@ -62,10 +63,13 @@ public class DefaultRegistrationService implements RegistrationService {
         Subscriber subscriber = new Subscriber();
         subscriber.setFullName(fullName);
         subscriber.setPhoneNumber(normalizedPhone);
-        subscriber.setBalance(BigDecimal.ZERO);
+        subscriber.setEmail(null);
+        subscriber.setBalance(new BigDecimal("500"));
         subscriber.setActive(true);
         subscriber.setTariffPlan(TariffPlan.SPECIALIST);
         subscriber.setPhotoPath(null);
+        subscriber.setRemainingTrafficGb(50);
+        subscriber.setTariffExpirationDate(LocalDate.now().plusDays(30));
 
         Subscriber savedSubscriber = subscriberRepository.save(subscriber);
 

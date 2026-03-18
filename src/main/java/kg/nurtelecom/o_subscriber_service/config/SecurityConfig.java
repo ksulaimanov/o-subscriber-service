@@ -58,6 +58,10 @@ public class SecurityConfig {
                         .requestMatchers("/home", "/profile").authenticated()
                         .requestMatchers(HttpMethod.GET, "/profile/*").authenticated()
                         .requestMatchers(HttpMethod.POST, "/subscribers/*/photo").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/subscribers/*/photo").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/subscribers/*/photo/delete").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/subscribers/*/email").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/subscribers/*/tariff").authenticated()
 
                         .requestMatchers("/subscribers-page").hasRole("ADMIN")
 

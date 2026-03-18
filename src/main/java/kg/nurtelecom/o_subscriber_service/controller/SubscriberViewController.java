@@ -1,5 +1,6 @@
 package kg.nurtelecom.o_subscriber_service.controller;
 
+import kg.nurtelecom.o_subscriber_service.dto.EmailUpdateRequest;
 import kg.nurtelecom.o_subscriber_service.dto.SubscriberResponse;
 import kg.nurtelecom.o_subscriber_service.entity.AppUser;
 import kg.nurtelecom.o_subscriber_service.repository.AppUserRepository;
@@ -48,7 +49,9 @@ public class SubscriberViewController {
 
         Long subscriberId = appUser.getSubscriber().getId();
         SubscriberResponse subscriber = subscriberService.getSubscriberById(subscriberId);
+
         model.addAttribute("subscriber", subscriber);
+        model.addAttribute("emailForm", new EmailUpdateRequest());
 
         return "profile";
     }
@@ -57,6 +60,7 @@ public class SubscriberViewController {
     public String profilePageById(@PathVariable Long id, Model model) {
         SubscriberResponse subscriber = subscriberService.getSubscriberById(id);
         model.addAttribute("subscriber", subscriber);
+        model.addAttribute("emailForm", new EmailUpdateRequest());
         return "profile";
     }
 
@@ -67,6 +71,53 @@ public class SubscriberViewController {
         try {
             subscriberService.uploadPhoto(id, photo);
             redirectAttributes.addFlashAttribute("successMessage", "Фотография успешно загружена");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        return "redirect:/profile/" + id;
+    }
+
+    @PostMapping("/subscribers/{id}/photo/delete")
+    public String deleteSubscriberPhoto(@PathVariable Long id,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            subscriberService.deletePhoto(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Фотография удалена");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        return "redirect:/profile/" + id;
+    }
+
+    @PostMapping("/subscribers/{id}/email")
+    public String updateSubscriberEmail(@PathVariable Long id,
+                                        @RequestParam("email") String email,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            EmailUpdateRequest request = new EmailUpdateRequest();
+            request.setEmail(email);
+            subscriberService.updateEmailJdbcTemplate(id, request);
+            redirectAttributes.addFlashAttribute("successMessage", "Email успешно сохранён");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+
+        return "redirect:/profile/" + id;
+    }
+
+    @PostMapping("/subscribers/{id}/tariff")
+    public String updateSubscriberTariff(@PathVariable Long id,
+                                         @RequestParam("tariffPlan") String tariffPlan,
+                                         RedirectAttributes redirectAttributes) {
+        try {
+            kg.nurtelecom.o_subscriber_service.dto.TariffUpdateRequest request =
+                    new kg.nurtelecom.o_subscriber_service.dto.TariffUpdateRequest();
+            request.setTariffPlan(kg.nurtelecom.o_subscriber_service.entity.TariffPlan.valueOf(tariffPlan));
+
+            subscriberService.updateTariff(id, request);
+            redirectAttributes.addFlashAttribute("successMessage", "Тариф успешно обновлён");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
