@@ -1,5 +1,7 @@
 package kg.nurtelecom.o_subscriber_service.config;
 
+import kg.nurtelecom.o_subscriber_service.security.CustomAuthenticationFailureHandler;
+import kg.nurtelecom.o_subscriber_service.security.CustomAuthenticationSuccessHandler;
 import kg.nurtelecom.o_subscriber_service.security.CustomUserDetailsService;
 import kg.nurtelecom.o_subscriber_service.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -23,11 +25,17 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     public SecurityConfig(CustomUserDetailsService customUserDetailsService,
-                          JwtAuthenticationFilter jwtAuthenticationFilter) {
+                          JwtAuthenticationFilter jwtAuthenticationFilter,
+                          CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
+                          CustomAuthenticationFailureHandler customAuthenticationFailureHandler) {
         this.customUserDetailsService = customUserDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
+        this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
     }
 
     @Bean
@@ -45,25 +53,27 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/",
                                 "/login",
                                 "/register",
                                 "/css/**",
                                 "/images/**",
-                                "/photos/**"
+                                "/photos/**",
+                                "/error"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/register").permitAll()
 
                         .requestMatchers("/home", "/profile").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/profile/*").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/subscribers/*/photo").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/profile/*").hasRole("ADMIN")
+
                         .requestMatchers(HttpMethod.POST, "/subscribers/*/photo").authenticated()
                         .requestMatchers(HttpMethod.POST, "/subscribers/*/photo/delete").authenticated()
                         .requestMatchers(HttpMethod.POST, "/subscribers/*/email").authenticated()
                         .requestMatchers(HttpMethod.POST, "/subscribers/*/tariff").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/subscribers/*/balance/top-up").authenticated()
 
                         .requestMatchers("/subscribers-page").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/subscribers/*/toggle-status").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/subscribers", "/api/subscribers/*").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/subscribers/dao/**").hasRole("ADMIN")
@@ -78,13 +88,17 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home", true)
+                        .successHandler(customAuthenticationSuccessHandler)
+                        .failureHandler(customAuthenticationFailureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/error/403")
                 )
                 .httpBasic(httpBasic -> {})
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

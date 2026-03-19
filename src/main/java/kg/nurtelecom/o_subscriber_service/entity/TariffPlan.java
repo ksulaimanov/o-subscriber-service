@@ -3,18 +3,18 @@ package kg.nurtelecom.o_subscriber_service.entity;
 import java.math.BigDecimal;
 
 public enum TariffPlan {
-    DIRECTOR("Director", new BigDecimal("1000"), "Unlimited Internet"),
-    MANAGER("Manager", new BigDecimal("500"), "50 GB"),
-    SPECIALIST("Specialist", new BigDecimal("350"), "50 GB");
+    DIRECTOR("DIRECTOR", new BigDecimal("1000"), null),
+    MANAGER("MANAGER", new BigDecimal("500"), 50),
+    SPECIALIST("SPECIALIST", new BigDecimal("350"), 50);
 
     private final String title;
     private final BigDecimal monthlyFee;
-    private final String internetPackage;
+    private final Integer trafficGb;
 
-    TariffPlan(String title, BigDecimal monthlyFee, String internetPackage) {
+    TariffPlan(String title, BigDecimal monthlyFee, Integer trafficGb) {
         this.title = title;
         this.monthlyFee = monthlyFee;
-        this.internetPackage = internetPackage;
+        this.trafficGb = trafficGb;
     }
 
     public String getTitle() {
@@ -25,7 +25,11 @@ public enum TariffPlan {
         return monthlyFee;
     }
 
-    public String getInternetPackage() {
-        return internetPackage;
+    public Integer getTrafficGb() {
+        return trafficGb;
+    }
+
+    public boolean isUnlimited() {
+        return trafficGb == null;
     }
 }

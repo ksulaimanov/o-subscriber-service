@@ -15,9 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
-
-import static kg.nurtelecom.o_subscriber_service.entity.TariffPlan.*;
 
 @Service
 @Transactional
@@ -54,6 +53,11 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
         subscriber.setActive(request.getActive());
         subscriber.setPhotoPath(null);
 
+        if (request.getTariffPlan() != null) {
+            subscriber.setRemainingTrafficGb(request.getTariffPlan().getTrafficGb());
+            subscriber.setTariffExpirationDate(LocalDate.now().plusDays(30));
+        }
+
         Subscriber savedSubscriber = subscriberRepository.save(subscriber);
         return subscriberMapper.toResponse(savedSubscriber);
     }
@@ -84,17 +88,30 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
             throw new DuplicateResourceException("Абонент с таким номером телефона уже существует");
         }
 
-        if (!subscriber.getEmail().equals(request.getEmail())
-                && subscriberRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Абонент с таким email уже существует");
+        String newEmail = request.getEmail();
+
+        if (subscriber.getEmail() == null) {
+            if (newEmail != null && subscriberRepository.existsByEmail(newEmail)) {
+                throw new DuplicateResourceException("Абонент с таким email уже существует");
+            }
+        } else {
+            if (newEmail != null
+                    && !subscriber.getEmail().equalsIgnoreCase(newEmail)
+                    && subscriberRepository.existsByEmail(newEmail)) {
+                throw new DuplicateResourceException("Абонент с таким email уже существует");
+            }
         }
 
         subscriber.setFullName(request.getFullName());
         subscriber.setPhoneNumber(normalizedPhone);
-        subscriber.setEmail(request.getEmail());
+        subscriber.setEmail(newEmail);
         subscriber.setTariffPlan(request.getTariffPlan());
         subscriber.setBalance(request.getBalance());
         subscriber.setActive(request.getActive());
+
+        if (request.getTariffPlan() != null) {
+            subscriber.setRemainingTrafficGb(request.getTariffPlan().getTrafficGb());
+        }
 
         Subscriber updatedSubscriber = subscriberRepository.save(subscriber);
         return subscriberMapper.toResponse(updatedSubscriber);
@@ -109,6 +126,11 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
     @Override
     public SubscriberResponse updateBalance(Long id, BalanceUpdateRequest request) {
         Subscriber subscriber = findSubscriberOrThrow(id);
+
+        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Сумма должна быть больше нуля");
+        }
+
         subscriber.setBalance(subscriber.getBalance().add(request.getAmount()));
 
         Subscriber updatedSubscriber = subscriberRepository.save(subscriber);
@@ -120,8 +142,11 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
         Subscriber subscriber = findSubscriberOrThrow(id);
 
         TariffPlan newPlan = request.getTariffPlan();
-        BigDecimal price = getTariffPrice(newPlan);
-        Integer trafficGb = getTariffTrafficGb(newPlan);
+        if (newPlan == null) {
+            throw new IllegalArgumentException("Тарифный план не выбран");
+        }
+
+        BigDecimal price = newPlan.getMonthlyFee();
 
         if (subscriber.getBalance().compareTo(price) < 0) {
             throw new IllegalArgumentException("Недостаточно средств для смены тарифа");
@@ -129,27 +154,11 @@ public class DefaultSubscriberService extends AbstractSubscriberService implemen
 
         subscriber.setBalance(subscriber.getBalance().subtract(price));
         subscriber.setTariffPlan(newPlan);
-        subscriber.setRemainingTrafficGb(trafficGb);
-        subscriber.setTariffExpirationDate(java.time.LocalDate.now().plusDays(30));
+        subscriber.setRemainingTrafficGb(newPlan.getTrafficGb());
+        subscriber.setTariffExpirationDate(LocalDate.now().plusDays(30));
 
         Subscriber updatedSubscriber = subscriberRepository.save(subscriber);
         return subscriberMapper.toResponse(updatedSubscriber);
-    }
-
-    private BigDecimal getTariffPrice(TariffPlan tariffPlan) {
-        return switch (tariffPlan) {
-            case DIRECTOR -> new BigDecimal("1000");
-            case MANAGER -> new BigDecimal("500");
-            case SPECIALIST -> new BigDecimal("350");
-        };
-    }
-
-    private Integer getTariffTrafficGb(TariffPlan tariffPlan) {
-        return switch (tariffPlan) {
-            case DIRECTOR -> null; // безлимит
-            case MANAGER -> 50;
-            case SPECIALIST -> 50;
-        };
     }
 
     @Override

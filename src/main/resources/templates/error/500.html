@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>O! — Ошибка сервиса</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="auth-shell">
+    <section class="auth-card">
+        <div class="auth-brand">
+            <div class="auth-brand-badge">O!</div>
+            <div>
+                <h1 class="auth-title">500</h1>
+                <p class="auth-subtitle">
+                    Внутренняя ошибка сервиса.
+                </p>
+            </div>
+        </div>
+
+        <div class="alert-error">
+            Мы уже работаем над восстановлением сервиса. Попробуйте обновить страницу позже.
+        </div>
+
+        <div class="actions">
+            <a class="btn btn-primary" href="/home">На главную</a>
+            <a class="btn btn-secondary" href="/login">Ко входу</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

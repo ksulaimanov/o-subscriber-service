@@ -43,15 +43,21 @@ public class Subscriber {
 
     @Column(name = "tariff_expiration_date")
     private LocalDate tariffExpirationDate;
-    private LocalDate packageExpiresAt;
 
     public Subscriber() {
     }
 
-
-    public Subscriber(Long id, String fullName, String phoneNumber, String email, TariffPlan tariffPlan,
-                      BigDecimal balance, boolean active, String photoPath, AppUser appUser,
-                      Integer remainingTrafficGb, LocalDate tariffExpirationDate, LocalDate packageExpiresAt) {
+    public Subscriber(Long id,
+                      String fullName,
+                      String phoneNumber,
+                      String email,
+                      TariffPlan tariffPlan,
+                      BigDecimal balance,
+                      boolean active,
+                      String photoPath,
+                      AppUser appUser,
+                      Integer remainingTrafficGb,
+                      LocalDate tariffExpirationDate) {
         this.id = id;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
@@ -63,7 +69,6 @@ public class Subscriber {
         this.appUser = appUser;
         this.remainingTrafficGb = remainingTrafficGb;
         this.tariffExpirationDate = tariffExpirationDate;
-        this.packageExpiresAt = packageExpiresAt;
     }
 
     public Long getId() {
