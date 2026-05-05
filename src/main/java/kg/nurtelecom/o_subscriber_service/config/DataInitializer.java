@@ -21,7 +21,6 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         createUserIfNotExists("admin", "admin123", Role.ROLE_ADMIN);
-        createUserIfNotExists("user", "user123", Role.ROLE_USER);
     }
 
     private void createUserIfNotExists(String username, String rawPassword, Role role) {
